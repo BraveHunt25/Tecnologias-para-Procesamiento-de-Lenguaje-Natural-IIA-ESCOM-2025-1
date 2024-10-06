@@ -8,8 +8,10 @@ nlp_esp = spacy.load("es_core_news_sm")
 nlp_eng = spacy.load("en_core_web_sm")
 
 # Cargar archivos
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Anexo_B_esp.txt'), 'r', encoding='utf-8') as f: texto_esp = f.read()
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Anexo_B_eng.txt'), 'r', encoding='utf-8') as f: texto_eng = f.read()
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Anexo_B_esp.txt'), 'r', encoding='utf-8') as f: 
+    texto_esp = f.read()
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Anexo_B_eng.txt'), 'r', encoding='utf-8') as f: 
+    texto_eng = f.read()
 
 # Procesar textos
 doc_esp = nlp_esp(texto_esp)
@@ -48,13 +50,14 @@ plot_most_common(most_common_esp, "Tokens más comunes en español")
 plot_most_common(most_common_eng, "Tokens más comunes en inglés")
 
 # Funciones de normalización
-def remover_stop_words(doc): 
-    return [token.text for token in doc if not token.is_stop and not token.is_punct]
+def remover_stop_words(tokens, nlp): 
+    return [token for token in tokens if not nlp.vocab[token].is_stop]
 
-def lematizar(doc): 
-    return [token.lemma_ for token in doc if not token.is_punct and not token.is_stop]
+def lematizar(tokens, nlp): 
+    doc = nlp(" ".join(tokens))
+    return [token.lemma_ for token in doc]
 
-def rudimentary_stemmer(word, idioma="es"):
+def stemmer(word, idioma="es"):
     if idioma == "es": 
         suffixes = ['ar', 'er', 'ir', 'ando', 'iendo', 'ado', 'ido', 'ción', 'es', 'mente', 's', 'a', 'o']
     elif idioma == "en": 
@@ -74,45 +77,58 @@ def eliminar_palabras_cortas(tokens, min_len=3):
     return [token for token in tokens if len(token) >= min_len]
 
 # Normalizar texto
-def normalizar_texto(doc, idioma="es"):
-    # Remover stop words
-    tokens_sin_stop = remover_stop_words(doc)
+def normalizar_texto(doc, idioma="es", nlp=nlp_esp):
+    # Crear lista de tokens iniciales (eliminando puntuación y espacios)
+    tokens = [token.text for token in doc if not token.is_punct and not token.is_space]
     
-    # Lematización
-    tokens_lematizados = lematizar(doc)
+    # 1. Eliminar palabras cortas
+    tokens = eliminar_palabras_cortas(tokens)
     
-    # Stemming rudimentario
-    tokens_stemmizados = [rudimentary_stemmer(token, idioma) for token in tokens_lematizados]
+    # 2. Eliminar palabras no alfabéticas
+    tokens = eliminar_no_alfabeticos(tokens)
     
-    # Convertir a minúsculas
-    tokens_minusculas = convertir_a_minusculas(tokens_stemmizados)
+    # 3. Convertir palabras a minúsculas
+    tokens = convertir_a_minusculas(tokens)
     
-    # Eliminar caracteres no alfabéticos
-    tokens_alfabeticos = eliminar_no_alfabeticos(tokens_minusculas)
+    # 4. Eliminar palabras stop
+    tokens = remover_stop_words(tokens, nlp)
     
-    # Eliminar palabras cortas
-    tokens_normalizados = eliminar_palabras_cortas(tokens_alfabeticos)    
-    return tokens_normalizados
+    # 5. Lematizar
+    tokens = lematizar(tokens, nlp)
+    
+    # 6. Stemmizar
+    tokens = [stemmer(token, idioma) for token in tokens]
+    
+    return tokens
 
 # Aplicar la normalización
-tokens_esp_normalizados = normalizar_texto(doc_esp, "es")
-tokens_eng_normalizados = normalizar_texto(doc_eng, "en")
+tokens_esp_normalizados = normalizar_texto(doc_esp, "es", nlp_esp)
+tokens_eng_normalizados = normalizar_texto(doc_eng, "en", nlp_eng)
 
 print(f"Texto normalizado en español: {tokens_esp_normalizados[:15]}")
 print(f"Texto normalizado en inglés: {tokens_eng_normalizados[:15]}")
 
 # Normalización iterativa
-# Aquí aplicamos el proceso de normalización al resultado obtenido
-def normalizar_iterativamente(doc, idioma="es", iteraciones=1):
-    tokens_normalizados = normalizar_texto(doc, idioma)
-    for _ in range(iteraciones - 1):  # -1 porque ya hicimos 1 iteración
+def normalizar_iterativamente(doc, idioma="es", iteraciones=1, nlp=None):
+    # Primer ciclo de normalización
+    tokens_normalizados = normalizar_texto(doc, idioma, nlp)
+    
+    for _ in range(iteraciones - 1):  # -1 porque ya se aplicó 1 iteración
         # Convertir la lista de tokens en un nuevo doc para la siguiente normalización
-        nuevo_doc = nlp_esp(" ".join(tokens_normalizados)) if idioma == "es" else nlp_eng(" ".join(tokens_normalizados))
-        tokens_normalizados = normalizar_texto(nuevo_doc, idioma)
+        nuevo_doc = nlp(" ".join(tokens_normalizados))
+        
+        # Aplicar la normalización de nuevo
+        tokens_normalizados = normalizar_texto(nuevo_doc, idioma, nlp)
+    
     return tokens_normalizados
 
-tokens_esp_normalizados_iter = normalizar_iterativamente(doc_esp, "es", iteraciones=3)
-tokens_eng_normalizados_iter = normalizar_iterativamente(doc_eng, "en", iteraciones=3)
+tokens_esp_normalizados_iter = normalizar_iterativamente(doc_esp, "es", iteraciones=3, nlp=nlp_esp)
+tokens_eng_normalizados_iter = normalizar_iterativamente(doc_eng, "en", iteraciones=3, nlp=nlp_eng)
 
 print(f"Texto normalizado iterativamente en español: {tokens_esp_normalizados_iter[:15]}")
 print(f"Texto normalizado iterativamente en inglés: {tokens_eng_normalizados_iter[:15]}")
+
+with open("tokens_esp_normalizados.txt", "w", encoding="utf-8") as file:
+    file.write("\n".join(tokens_esp_normalizados_iter))
+with open("tokens_eng_normalizados.txt", "w", encoding="utf-8") as file:
+    file.write("\n".join(tokens_eng_normalizados_iter))

@@ -129,6 +129,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+punkt/
 
 # Spyder project settings
 .spyderproject
@@ -156,9 +157,13 @@ cython_debug/
 
 # Word archives
 *.docx
+*.tmp
 
 # ZIP files
 *.zip
+
+# PDF no necesario
+Benjamin Bengfort, Tony Ojeda, Rebecca Bilbro-Applied Text Analysis with Python_ Enabling Language Aware Data Products with Machine Learni.pdf
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

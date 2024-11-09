@@ -1,0 +1,12 @@
+https://snyk.io/advisor/python/sumy/functions/sumy.summarizers.text_rank.TextRankSummarizer
+https://spotintelligence.com/2022/12/13/keyword-extraction/
+https://www.kdnuggets.com/2019/11/getting-started-automated-text-summarization.html
+https://www.activestate.com/blog/how-to-do-text-summarization-with-python/
+https://medium.com/1-hour-blog-series/automatic-text-summarization-made-simpler-using-python-577e7622c57a
+https://towardsdatascience.com/keyword-extraction-process-in-python-with-natural-language-processing-nlp-d769a9069d5c
+https://www.turing.com/kb/5-powerful-text-summarization-techniques-in-python
+https://www.nltk.org/api/nltk.tokenize.regexp.html#nltk.tokenize.regexp.regexp_tokenize
+https://www.nltk.org/_modules/nltk/tokenize/regexp.html#WordPunctTokenizer
+https://huggingface.co/facebook/bart-large-cnn
+https://huggingface.co/docs/transformers/main_classes/pipelines
+https://huggingface.co/docs/transformers/v4.46.2/en/main_classes/pipelines#transformers.SummarizationPipeline

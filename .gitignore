@@ -165,6 +165,12 @@ cython_debug/
 # PDF no necesario
 Benjamin Bengfort, Tony Ojeda, Rebecca Bilbro-Applied Text Analysis with Python_ Enabling Language Aware Data Products with Machine Learni.pdf
 
+# glove archives
+glove.6B.50d.txt
+glove.6B.100d.txt
+glove.6B.200d.txt
+glove.6B.300d.txt
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
